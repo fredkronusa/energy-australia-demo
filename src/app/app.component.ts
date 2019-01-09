@@ -3,7 +3,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError, of } from 'rxjs';
 import { map, filter, tap, switchMap, debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import {catchError} from 'rxjs/operators';
-
+import sortBy from 'sort-by';
 
 const API_URL = '/api/v1/cars';
 
@@ -39,7 +39,7 @@ export class AppComponent {
   getCars() {
 
     const response: ICarShow[] = require('../../mocks/complete-list-sample.json');
-    return of (this.formatResponse(response))
+    return of (this.transform(response))
     //return of(shows);
 
     // return this.http.get<ICarShow[]>('/api/v1/cars')
@@ -49,47 +49,38 @@ export class AppComponent {
     //   );
   }
 
-
-  formatResponse(response) {
-    
-    var normalizedData = [];
-
-    //adding unique makes 
-    response.forEach((item) => {
-      
-      item.cars.map((carMake) => {
-        
-        let isMakeAlreadyAvailable = normalizedData.find(car => car.make === carMake.make);
-        if(!isMakeAlreadyAvailable) {
-          normalizedData.push({
-            make: carMake.make,
-            models: []
-          });
+  transform (input) {
+    const makes = [];
+    for (const show of input) {
+      const showName = show.name || 'Unknown show name';
+      for (const car of show.cars) {
+        const carMake = car.make || 'Unknown car make';
+        const carModel = car.model || 'Unknown model name';
+        let make = makes.find((make) => make.make === carMake);
+        if (!make) {
+          make = {
+            make: carMake,
+            models: [],
+          };
+          makes.push(make);
         }
-        
-        normalizedData.filter((a) => {
-          if (a.make === carMake.make) {
-            let isMakeAlreadyAvailable = a.models.find(car => car.name === carMake.model);
-            if (!isMakeAlreadyAvailable) {
-              a.models.push({
-                name: carMake.model || "Model Not Specified",
-                shows: []
-              })
-            }
-            a.models.forEach(function(a){
-              a.shows.push({
-                name: item.name
-              })
-            })  
-          }
-        })
+        let model = make.models.find((model) => model.name === carModel);
+        if (!model) {
+          model = {
+            name: carModel,
+            shows: [],
+          };
+          make.models.push(model);
+        }
+        if (!model.shows.includes(showName)) {
+          model.shows.push(showName);
+        }
+      }
+    }
 
-      })
-    })
-
-
-    return normalizedData;
+    return makes.sort(sortBy('make'));
   }
+
 
   handleError(error: HttpErrorResponse) {
 
@@ -99,14 +90,6 @@ export class AppComponent {
   }
    
 }
-
- // this.results = this.searchForm.controls.search.statusChanges.pipe( // Observable Form
-    //   filter(value => value.length > 2),
-    //   debounceTime(500),
-    //   distinctUntilChanged(),
-    //   switchMap(query => this.http.get<YouTubeResult>(API_URL)), // Observable Http
-    //   map(res => res.items)
-    // );
 
 
 
