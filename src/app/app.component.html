@@ -1,5 +1,17 @@
 <h1>EnergyAustralia Coding Test</h1>
 
-<div *ngFor="let result of results | async">
-  <p>{{result.make}}</p>
-</div>
+<ul>
+  <li *ngFor="let result of results | async">
+    {{result.make}}
+    <ul>
+      <li *ngFor="let model of result.models">
+        {{model.name}}
+        <ul>
+          <li *ngFor="let show of model.shows">
+            {{show.name}}
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>

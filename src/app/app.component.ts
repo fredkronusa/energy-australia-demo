@@ -54,17 +54,39 @@ export class AppComponent {
     
     var normalizedData = [];
 
-    response.forEach(function(item) {
-     var cars = item.cars;
-     cars.map(function(carMake) {
-         normalizedData.push({
-           make: carMake.make,
-           model: carMake.model || 'model name not available',
-           show: item.name || 'show name not available'
+    //adding unique makes 
+    response.forEach((item) => {
+      
+      item.cars.map((carMake) => {
+        
+        let isMakeAlreadyAvailable = normalizedData.find(car => car.make === carMake.make);
+        if(!isMakeAlreadyAvailable) {
+          normalizedData.push({
+            make: carMake.make,
+            models: []
+          });
+        }
+        
+        normalizedData.filter((a) => {
+          if (a.make === carMake.make) {
+            let isMakeAlreadyAvailable = a.models.find(car => car.name === carMake.model);
+            if (!isMakeAlreadyAvailable) {
+              a.models.push({
+                name: carMake.model || "Model Not Specified",
+                shows: []
+              })
+            }
+            a.models.forEach(function(a){
+              a.shows.push({
+                name: item.name
+              })
+            })  
+          }
+        })
 
-         });
       })
     })
+
 
     return normalizedData;
   }
