@@ -1,11 +1,9 @@
 import { Component } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError, of } from 'rxjs';
-import { map, filter, tap, switchMap, debounceTime, distinctUntilChanged } from 'rxjs/operators';
-import {catchError} from 'rxjs/operators';
+import {catchError, map} from 'rxjs/operators';
 import sortBy from 'sort-by';
-
-const API_URL = '/api/v1/cars';
+import * as COMMON from '../assets/static/content/common';
 
 interface ICarShow {
   name: string
@@ -18,51 +16,54 @@ interface ICar {
 }
 
 interface IError {
-  error: string
+  message: string
 }
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
+  styleUrls: ['./app.component.scss']
 })
 
 export class AppComponent {
   
   results: Observable<ICarShow[]>;
-  errorMessage: Observable<IError>;
+  errorMessage;
 
   constructor(private http: HttpClient) { 
     this.results = this.getCars();
   }
 
-  getCars() {
+  getCars(): Observable<ICarShow[]> {
 
-    const response: ICarShow[] = require('../../mocks/complete-list-sample.json');
-    return of (this.transform(response))
-    //return of(shows);
+    // const response: ICarShow[] = require('../../mocks/complete-list-sample.json');
+    // return of (this.transform(response))
 
-    // return this.http.get<ICarShow[]>('/api/v1/cars')
-    //   .pipe(
-    //     catchError(this.handleError),
-    //     map(res => res)
-    //   );
+    return this.http.get<ICarShow[]>(COMMON.API_URL)
+      .pipe(
+        map(res => this.transform(res)),
+        catchError(this.handleError.bind(this))
+      )
   }
 
-  transform (input) {
-    const makes = [];
-    for (const show of input) {
-      const showName = show.name || 'Unknown show name';
+  transform (response) {
+
+    if (response === "") {
+      this.setMessage(null, COMMON.WARNING, COMMON.NO_DATA);
+    }
+    const list = [];
+    for (const show of response) {
+      const showName = show.name || COMMON.NO_SHOW;
       for (const car of show.cars) {
-        const carMake = car.make || 'Unknown car make';
-        const carModel = car.model || 'Unknown model name';
-        let make = makes.find((make) => make.make === carMake);
+        const carMake = car.make || COMMON.NO_MAKE;
+        const carModel = car.model || COMMON.NO_MODEL;
+        let make = list.find((make) => make.make === carMake);
         if (!make) {
           make = {
             make: carMake,
             models: [],
           };
-          makes.push(make);
+          list.push(make);
         }
         let model = make.models.find((model) => model.name === carModel);
         if (!model) {
@@ -72,40 +73,24 @@ export class AppComponent {
           };
           make.models.push(model);
         }
+        let shows: any = [];
         if (!model.shows.includes(showName)) {
           model.shows.push(showName);
         }
       }
     }
 
-    return makes.sort(sortBy('make'));
+    return list.sort(sortBy('make'));
   }
 
+  // convert into a high order component
+  setMessage(error: HttpErrorResponse, messageType: string, customMessage?: string): IError {
+     return this.errorMessage = customMessage ?  customMessage : error.error;
+  }
 
   handleError(error: HttpErrorResponse) {
-
-    this.errorMessage = error.error;
-    const errorMsg = `Backend returned code ${error.status}, body was: ${error.error}`;
-    return throwError(errorMsg);
+    this.setMessage(error, COMMON.ERROR);
+    return throwError(error);
   }
    
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -1,0 +1,35 @@
+// TODO: Move variables into a common file
+
+// fonts
+$font-stack:  museo_sans_rounded300,Arial,Helvetica Neue,Helvetica,sans-serif;
+$font-regular: 1rem;
+$font-small: 1rem;
+
+// spaces
+$padding-common: 1rem;
+
+//colors 
+$primary-color: #333;
+
+
+body {
+    font-family: $font-stack;
+    color: $primary-color;
+    font-size: $font-regular;
+    line-height: 1.625;
+    padding: $padding-common;
+}
+h1 {
+	font-size: $padding-common;
+}
+.logo {
+	max-width: 260px;
+}
+// todo convert into a mixin for warning and errors
+.warning-box {
+	background: orange;
+	padding: $padding-common;
+	color: white;
+	font-weight: bold;
+	font-size: 12px
+}
