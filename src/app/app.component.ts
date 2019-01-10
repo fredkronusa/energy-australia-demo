@@ -1,5 +1,6 @@
+import { Injectable } from '@angular/core';
 import { Component } from '@angular/core';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpErrorResponse, HttpClient } from '@angular/common/http';
 import { Observable, throwError, of } from 'rxjs';
 import {catchError, map} from 'rxjs/operators';
 import sortBy from 'sort-by';
@@ -19,6 +20,10 @@ interface IError {
   message: string;
 }
 
+@Injectable({
+  providedIn: 'root'
+})
+
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -27,10 +32,11 @@ interface IError {
 
 export class AppComponent {
   results: Observable<ICarShow[]>;
-  errorMessage;
+  errorMessage: Observable<IError>;
 
-  constructor(private http: HttpClient) {
+  constructor(public http: HttpClient) {
     this.results = this.getCars();
+    this.errorMessage = null;
   }
 
   getCars(): Observable<ICarShow[]> {
