@@ -6,17 +6,17 @@ import sortBy from 'sort-by';
 import * as COMMON from '../assets/static/content/common';
 
 interface ICarShow {
-  name: string
-  cars: ICar[]
+  name: string;
+  cars: ICar[];
 }
 
 interface ICar {
-  name: string
-  model: string
+  name: string;
+  model: string;
 }
 
 interface IError {
-  message: string
+  message: string;
 }
 
 @Component({
@@ -26,16 +26,14 @@ interface IError {
 })
 
 export class AppComponent {
-  
   results: Observable<ICarShow[]>;
   errorMessage;
 
-  constructor(private http: HttpClient) { 
+  constructor(private http: HttpClient) {
     this.results = this.getCars();
   }
 
   getCars(): Observable<ICarShow[]> {
-
     // const response: ICarShow[] = require('../../mocks/complete-list-sample.json');
     // return of (this.transform(response))
 
@@ -43,12 +41,12 @@ export class AppComponent {
       .pipe(
         map(res => this.transform(res)),
         catchError(this.handleError.bind(this))
-      )
+      );
   }
 
   transform (response) {
 
-    if (response === "") {
+    if (response === '') {
       this.setMessage(null, COMMON.WARNING, COMMON.NO_DATA);
     }
     const list = [];
@@ -73,7 +71,7 @@ export class AppComponent {
           };
           make.models.push(model);
         }
-        let shows: any = [];
+        const shows: any = [];
         if (!model.shows.includes(showName)) {
           model.shows.push(showName);
         }
@@ -92,5 +90,4 @@ export class AppComponent {
     this.setMessage(error, COMMON.ERROR);
     return throwError(error);
   }
-   
 }
