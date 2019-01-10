@@ -52,7 +52,7 @@ describe('AppComponent', () => {
       results => expect(results.length).toEqual(0),
       fail
     );
-    expect<any>(mockApp.errorMessage).toBe('There is no data at the momment, Please try to refresh your browser')
+    expect<any>(mockApp.errorMessage).toBe('There is no data at the momment, Please try to refresh your browser');
   });
 
   it('getCars should return an error message when call fails', () => {
@@ -63,7 +63,7 @@ describe('AppComponent', () => {
     httpClientSpy.get.and.returnValue(throwError(errorResponse));
     mockApp = new AppComponent(<any> httpClientSpy);
     mockApp.getCars().subscribe();
-    expect<any>(mockApp.errorMessage).toBe('Failed Downstream service')
+    expect<any>(mockApp.errorMessage).toBe('Failed Downstream service');
   });
 
 });
