@@ -40,9 +40,6 @@ export class AppComponent {
   }
 
   getCars(): Observable<ICarShow[]> {
-    // const response: ICarShow[] = require('../../mocks/complete-list-sample.json');
-    // return of (this.transform(response))
-
     return this.http.get<ICarShow[]>(COMMON.API_URL)
       .pipe(
         map(res => this.transform(res)),
